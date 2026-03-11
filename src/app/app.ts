@@ -1,12 +1,19 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, signal } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  standalone: true,
+  imports: [RouterOutlet, RouterLink],
+  template: `
+    <nav style="padding: 1rem; background: #3f51b5; color: white;">
+      <a routerLink="/couriers" style="color: white; margin-right: 15px; text-decoration: none;"
+        >Couriers</a
+      >
+    </nav>
+    <main style="padding: 20px;">
+      <router-outlet></router-outlet>
+    </main>
+  `,
 })
-export class App {
-  protected readonly title = signal('logistics-core-dashboard');
-}
+export class App {}
