@@ -9,13 +9,13 @@ import { environment } from '../../environments.environment';
   providedIn: 'root',
 })
 export class CourierService {
-  private apiUrl = `${environment.apiUrl}/couriers`;
+  private apiUrl = `${environment.apiUrl}/v1/couriers`;
 
   constructor(private http: HttpClient) {}
 
   // Get all couriers for the active tenant
-  getCouriers(): Observable<Courier[]> {
-    return this.http.get<Courier[]>(this.apiUrl);
+  getAvailableCouriers(): Observable<Courier[]> {
+    return this.http.get<Courier[]>(`${this.apiUrl}/available`);
   }
 
   // Save a new courier

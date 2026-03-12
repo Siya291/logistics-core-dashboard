@@ -1,43 +1,38 @@
 <div class="container">
   <h2>Active Couriers</h2>
 
-  <div *ngIf="loading" class="spinner-container">
-    <mat-spinner></mat-spinner>
-  </div>
+  <input type="text" [(ngModel)]="searchText" (input)="applyFilter()" placeholder="Filter by name or status...">
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="!loading">
+  @if (loading) {
+    <div class="spinner-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
+    <table class="simple-table">
+      <thead>
+      <tr>
+        <th (click)="sortData('id')" style="cursor:pointer">ID ↕</th>
+        <th (click)="sortData('name')" style="cursor:pointer">Name ↕</th>
+        <th (click)="sortData('status')" style="cursor:pointer">Status ↕</th>
+        <th>Coordinates (Lat, Long)</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let courier of filteredCouriers">
+        <td>{{courier.id}}</td>
+        <td>{{courier.name}}</td>
+        <td>
+          <span class="status-badge" [ngClass]="courier.status">
+            {{courier.status}}
+          </span>
+        </td>
+        <td>{{courier.latitude.toFixed(4)}}, {{courier.longitude.toFixed(4)}}</td>
+      </tr>
+      </tbody>
+    </table>
+  }
 
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> ID </th>
-      <td mat-cell *mat-cellDef="let courier"> {{courier.id}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *mat-cellDef="let courier"> {{courier.name}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef> Status </th>
-      <td mat-cell *mat-cellDef="let courier">
-        <span class="status-badge" [ngClass]="courier.status">
-          {{courier.status}}
-        </span>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="location">
-      <th mat-header-cell *matHeaderCellDef> Coordinates </th>
-      <td mat-cell *mat-cellDef="let courier">
-        {{courier.currentLocation.coordinates[1]}}, {{courier.currentLocation.coordinates[0]}}
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *mat-rowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-
-  <div style="margin-top: 20px;">
-    <button mat-raised-button color="primary" (click)="loadData()">Refresh Data</button>
-  </div>
+  <button mat-raised-button color="primary" (click)="loadData()" style="margin-top: 20px;">
+    Refresh Data
+  </button>
 </div>
