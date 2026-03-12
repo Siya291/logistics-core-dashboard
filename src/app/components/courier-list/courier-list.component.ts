@@ -1,40 +1,68 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 import { Courier } from '../../models/courier';
 import { CourierService } from '../../services/courier';
 
 @Component({
   selector: 'app-courier-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule, MatButtonModule],
   templateUrl: './courier-list.component.html',
   styleUrls: ['./courier-list.component.css'],
 })
 export class CourierListComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'name', 'status', 'location'];
-  dataSource: Courier[] = [];
+  allCouriers: Courier[] = [];
+  filteredCouriers: Courier[] = [];
   loading = true;
+  searchText = '';
+  sortAsc = true;
 
-  constructor(private courierService: CourierService) {}
+  constructor(
+    private courierService: CourierService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
-    this.courierService.getCouriers().subscribe({
-      next: (data) => {
-        this.dataSource = data;
+    this.fetchData();
+  }
+
+  fetchData() {
+    this.loading = true;
+    this.courierService.getAvailableCouriers().subscribe({
+      next: (data: any) => {
+        this.allCouriers = Array.isArray(data) ? data : [data];
+        this.filteredCouriers = [...this.allCouriers];
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('API Error:', err);
         this.loading = false;
       },
-      error: () => (this.loading = false),
     });
   }
 
-  // To Refresh data without having to refresh the whole page
-  loadData() {
-    this.loading = true;
-    this.courierService.getCouriers().subscribe((data) => {
-      this.dataSource = data;
-      this.loading = false;
+  applyFilter() {
+    const term = this.searchText.toLowerCase();
+    this.filteredCouriers = this.allCouriers.filter(
+      (c) => c.name.toLowerCase().includes(term) || c.status.toLowerCase().includes(term),
+    );
+  }
+
+  sortData(key: keyof Courier) {
+    this.sortAsc = !this.sortAsc;
+    this.filteredCouriers.sort((a, b) => {
+      const valA = a[key] ?? '';
+      const valB = b[key] ?? '';
+      const comparison = valA > valB ? 1 : -1;
+      return this.sortAsc ? comparison : -comparison;
     });
+  }
+
+  loadData() {
+    this.fetchData();
   }
 }

@@ -25,7 +25,12 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/material-theme.scss", "src/styles.css"],
+            "styles": [
+              "node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+              "node_modules/leaflet/dist/leaflet.css",
+              "src/material-theme.scss",
+              "src/styles.css"
+            ],
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {

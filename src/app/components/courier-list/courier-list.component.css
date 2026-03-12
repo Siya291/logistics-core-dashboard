@@ -1,6 +1,9 @@
 .container { padding: 20px; }
-table { width: 100%; margin-top: 20px; }
-.spinner-container { display: flex; justify-content: center; margin-top: 50px; }
-.status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+.simple-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+.simple-table th, .simple-table td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+.simple-table th { background-color: #f4f4f4; }
+.simple-table tbody tr:hover { background-color: #f1f1f1; }
+.status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; }
 .ACTIVE { background-color: #e8f5e9; color: #2e7d32; }
 .INACTIVE { background-color: #ffebee; color: #c62828; }
