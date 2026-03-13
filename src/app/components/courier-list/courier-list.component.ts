@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { Courier } from '../../models/courier';
@@ -10,7 +10,7 @@ import { CourierService } from '../../services/courier';
 @Component({
   selector: 'app-courier-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatProgressSpinnerModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule, MatButtonModule, RouterModule],
   templateUrl: './courier-list.component.html',
   styleUrls: ['./courier-list.component.css'],
 })
@@ -24,7 +24,7 @@ export class CourierListComponent implements OnInit {
   constructor(
     private courierService: CourierService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -33,8 +33,8 @@ export class CourierListComponent implements OnInit {
 
   fetchData() {
     this.loading = true;
-    this.courierService.getAvailableCouriers().subscribe({
-      next: (data: any) => {
+    this.courierService.getAllCouriers().subscribe({
+      next: (data: Courier[]) => {
         this.allCouriers = Array.isArray(data) ? data : [data];
         this.filteredCouriers = [...this.allCouriers];
         this.loading = false;
@@ -43,14 +43,31 @@ export class CourierListComponent implements OnInit {
       error: (err) => {
         console.error('API Error:', err);
         this.loading = false;
-      }
+      },
     });
+  }
+
+  toggleStatus(event: Event, courier: Courier) {
+    event.stopPropagation(); // Prevent row click
+    const newStatus = courier.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    this.courierService.updateStatus(courier.id, newStatus).subscribe(() => {
+      this.fetchData();
+    });
+  }
+
+  deleteCourier(event: Event, id: number) {
+    event.stopPropagation(); // Prevent row click
+    if (confirm('Are you sure you want to delete this courier?')) {
+      this.courierService.deleteCourier(id).subscribe(() => {
+        this.fetchData();
+      });
+    }
   }
 
   applyFilter() {
     const term = this.searchText.toLowerCase();
-    this.filteredCouriers = this.allCouriers.filter(c =>
-      c.name.toLowerCase().includes(term) || c.status.toLowerCase().includes(term)
+    this.filteredCouriers = this.allCouriers.filter(
+      (c) => c.name.toLowerCase().includes(term) || c.status.toLowerCase().includes(term),
     );
   }
 

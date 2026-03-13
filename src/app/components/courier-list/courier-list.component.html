@@ -1,12 +1,15 @@
 <div class="container">
-  <h2>Active Couriers</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Manage Fleet</h2>
+    <button mat-raised-button color="accent" routerLink="/register-courier">
+      + Register New Courier
+    </button>
+  </div>
 
   <input type="text" [(ngModel)]="searchText" (input)="applyFilter()" placeholder="Filter by name or status...">
 
   @if (loading) {
-    <div class="spinner-container">
-      <mat-spinner></mat-spinner>
-    </div>
+    <div class="spinner-container"><mat-spinner></mat-spinner></div>
   } @else {
     <table class="simple-table">
       <thead>
@@ -15,7 +18,7 @@
         <th (click)="sortData('name')" style="cursor:pointer">Name ↕</th>
         <th (click)="sortData('status')" style="cursor:pointer">Status ↕</th>
         <th>Location</th>
-        <th>Action</th>
+        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
@@ -29,7 +32,11 @@
         </td>
         <td>{{courier.latitude.toFixed(4)}}, {{courier.longitude.toFixed(4)}}</td>
         <td>
-          <button mat-button color="primary">View Details</button>
+          <button mat-button color="primary" (click)="viewCourier(courier.id)">View</button>
+          <button mat-button [color]="courier.status === 'ACTIVE' ? 'warn' : 'accent'" (click)="toggleStatus($event, courier)">
+            {{ courier.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}
+          </button>
+          <button mat-button color="warn" (click)="deleteCourier($event, courier.id)">Delete</button>
         </td>
       </tr>
       </tbody>

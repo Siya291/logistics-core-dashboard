@@ -1,0 +1,33 @@
+<div class="form-container">
+  <h2>Register New Courier</h2>
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label>Courier Name</label>
+      <input formControlName="name" placeholder="Full Name">
+    </div>
+
+    <div class="form-group">
+      <label>Status</label>
+      <select formControlName="status">
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="INACTIVE">INACTIVE</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Latitude</label>
+        <input formControlName="latitude" placeholder="-26.0583">
+      </div>
+      <div class="form-group">
+        <label>Longitude</label>
+        <input formControlName="longitude" placeholder="27.9260">
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="registerForm.invalid || loading">
+      {{ loading ? 'Registering...' : 'Submit Registration' }}
+    </button>
+  </form>
+</div>
