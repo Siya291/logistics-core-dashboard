@@ -14,19 +14,23 @@
         <th (click)="sortData('id')" style="cursor:pointer">ID ↕</th>
         <th (click)="sortData('name')" style="cursor:pointer">Name ↕</th>
         <th (click)="sortData('status')" style="cursor:pointer">Status ↕</th>
-        <th>Coordinates (Lat, Long)</th>
+        <th>Location</th>
+        <th>Action</th>
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let courier of filteredCouriers">
+      <tr *ngFor="let courier of filteredCouriers" (click)="viewCourier(courier.id)" style="cursor: pointer;">
         <td>{{courier.id}}</td>
         <td>{{courier.name}}</td>
         <td>
-          <span class="status-badge" [ngClass]="courier.status">
-            {{courier.status}}
-          </span>
+            <span class="status-badge" [ngClass]="courier.status">
+              {{courier.status}}
+            </span>
         </td>
         <td>{{courier.latitude.toFixed(4)}}, {{courier.longitude.toFixed(4)}}</td>
+        <td>
+          <button mat-button color="primary">View Details</button>
+        </td>
       </tr>
       </tbody>
     </table>

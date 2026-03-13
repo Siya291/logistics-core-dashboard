@@ -1,0 +1,41 @@
+<div class="container">
+  <h2>Courier Details</h2>
+
+  @if (loading) {
+    <div class="spinner-container">
+      <div class="loader"></div>
+      <p>Loading courier data...</p>
+    </div>
+  } @else if (courier) {
+    <div class="detail-card">
+      <div class="detail-header">
+        <h3>{{ courier.name }}</h3>
+        <span class="id-badge">ID: {{ courier.id }}</span>
+      </div>
+
+      <div class="detail-body">
+        <div class="info-row">
+          <strong>Status:</strong>
+          <span class="status-badge" [ngClass]="courier.status">
+            {{ courier.status }}
+          </span>
+        </div>
+        <div class="info-row">
+          <strong>Latitude:</strong> {{ courier.latitude }}
+        </div>
+        <div class="info-row">
+          <strong>Longitude:</strong> {{ courier.longitude }}
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn-back" routerLink="/couriers">← Back to List</button>
+      </div>
+    </div>
+  } @else {
+    <div class="error-container">
+      <p>Courier not found or an error occurred.</p>
+      <button class="btn-back" routerLink="/couriers">Go Back</button>
+    </div>
+  }
+</div>
