@@ -1,0 +1,6 @@
+.form-container { max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+.form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+.row { display: flex; gap: 10px; }
+input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+button:disabled { background: #ccc; }

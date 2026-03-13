@@ -10,7 +10,8 @@ import {
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { CourierService } from '../../services/courier';
-import { interval, Subscription, switchMap, startWith } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
+import 'leaflet/dist/leaflet.css';
 
 @Component({
   selector: 'app-courier-map',
@@ -19,8 +20,7 @@ import { interval, Subscription, switchMap, startWith } from 'rxjs';
   template: `
     <div class="container">
       <div class="map-controls">
-        <h2>Live Tracking</h2>
-        <p *ngIf="selectedCourierId">Status: <span class="live-indicator">● LIVE UPDATING</span></p>
+        <h2>Live Tracking: Active Fleet</h2>
       </div>
       <div id="map" style="height: 600px; width: 100%;"></div>
     </div>
@@ -31,30 +31,14 @@ import { interval, Subscription, switchMap, startWith } from 'rxjs';
         border-radius: 8px;
         border: 2px solid #007bff;
       }
-      .live-indicator {
-        color: #28a745;
-        font-weight: bold;
-        animation: blink 1.5s infinite;
-      }
-      @keyframes blink {
-        0% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.3;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
     `,
   ],
 })
 export class CourierMap implements OnInit, AfterViewInit, OnDestroy {
   private map: any;
-  private marker: any;
-  private L: any; // We'll store the Leaflet instance here
+  private L: any;
   private updateSubscription!: Subscription;
+  private markers: Map<number, any> = new Map();
   selectedCourierId: number | null = null;
   isBrowser: boolean;
 
@@ -64,27 +48,26 @@ export class CourierMap implements OnInit, AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
-    // Check if we are in the browser
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
-      if (params['id']) {
-        this.selectedCourierId = Number(params['id']);
-      }
+      this.selectedCourierId = params['id'] ? Number(params['id']) : null;
     });
   }
 
   async ngAfterViewInit(): Promise<void> {
     if (this.isBrowser) {
-      // Dynamic import of Leaflet - This is the "Magic" part
       this.L = await import('leaflet');
-
       this.initMap();
 
       if (this.selectedCourierId) {
-        this.startLiveTracking();
+        this.loadSingleCourier();
+        this.updateSubscription = interval(10000).subscribe(() => this.loadSingleCourier());
+      } else {
+        this.loadAllCouriers();
+        this.updateSubscription = interval(10000).subscribe(() => this.loadAllCouriers());
       }
     }
   }
@@ -96,36 +79,46 @@ export class CourierMap implements OnInit, AfterViewInit, OnDestroy {
     }).addTo(this.map);
   }
 
-  private startLiveTracking(): void {
-    this.updateSubscription = interval(10000)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.courierService.getCourierById(this.selectedCourierId!)),
-      )
-      .subscribe({
-        next: (courier) => {
-          this.updateMarker(courier.latitude, courier.longitude, courier.name);
-        },
-        error: (err) => console.error('Tracking Error:', err),
-      });
+  private loadSingleCourier(): void {
+    if (!this.map || !this.selectedCourierId) return;
+
+    this.courierService.getCourierById(this.selectedCourierId).subscribe({
+      next: (courier) => {
+        const coords: [number, number] = [courier.latitude, courier.longitude];
+        if (this.markers.has(courier.id)) {
+          this.markers.get(courier.id).setLatLng(coords);
+        } else {
+          const newMarker = this.L.marker(coords).addTo(this.map);
+          newMarker.bindPopup(`<b>${courier.name} (Tracking)</b>`).openPopup();
+          this.markers.set(courier.id, newMarker);
+          this.map.setView(coords, 16); // Focus on the courier
+        }
+      },
+    });
   }
 
-  private updateMarker(lat: number, lng: number, name: string): void {
+  private loadAllCouriers(): void {
     if (!this.map || !this.L) return;
 
-    const coords: [number, number] = [lat, lng];
+    this.courierService.getAvailableCouriers().subscribe({
+      next: (couriers) => {
+        couriers.forEach((courier) => {
+          const coords: [number, number] = [courier.latitude, courier.longitude];
 
-    if (!this.marker) {
-      this.marker = this.L.marker(coords).addTo(this.map);
-      this.map.setView(coords, 16);
-    } else {
-      this.marker.setLatLng(coords);
-    }
-
-    this.marker
-      .bindPopup(`<b>${name}</b><br>Updated: ${new Date().toLocaleTimeString()}`)
-      .openPopup();
-    this.cdr.detectChanges();
+          if (this.markers.has(courier.id)) {
+            // Update existing marker position
+            this.markers.get(courier.id).setLatLng(coords);
+          } else {
+            // Create new marker for new courier
+            const newMarker = this.L.marker(coords).addTo(this.map);
+            newMarker.bindPopup(`<b>${courier.name}</b>`);
+            this.markers.set(courier.id, newMarker);
+          }
+        });
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error loading fleet:', err),
+    });
   }
 
   ngOnDestroy(): void {
