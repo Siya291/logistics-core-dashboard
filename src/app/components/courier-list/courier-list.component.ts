@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { Courier } from '../../models/courier';
@@ -23,6 +24,7 @@ export class CourierListComponent implements OnInit {
   constructor(
     private courierService: CourierService,
     private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -41,14 +43,14 @@ export class CourierListComponent implements OnInit {
       error: (err) => {
         console.error('API Error:', err);
         this.loading = false;
-      },
+      }
     });
   }
 
   applyFilter() {
     const term = this.searchText.toLowerCase();
-    this.filteredCouriers = this.allCouriers.filter(
-      (c) => c.name.toLowerCase().includes(term) || c.status.toLowerCase().includes(term),
+    this.filteredCouriers = this.allCouriers.filter(c =>
+      c.name.toLowerCase().includes(term) || c.status.toLowerCase().includes(term)
     );
   }
 
@@ -60,6 +62,10 @@ export class CourierListComponent implements OnInit {
       const comparison = valA > valB ? 1 : -1;
       return this.sortAsc ? comparison : -comparison;
     });
+  }
+
+  viewCourier(id: number) {
+    this.router.navigate(['/courier', id]);
   }
 
   loadData() {
