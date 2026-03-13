@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { Courier } from '../../models/courier';
 import { CourierService } from '../../services/courier';
 
@@ -9,7 +9,7 @@ import { CourierService } from '../../services/courier';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './courier-detail.component.html',
-  styleUrls: ['./courier-detail.component.css']
+  styleUrls: ['./courier-detail.component.css'],
 })
 export class CourierDetailComponent implements OnInit {
   courier: Courier | null = null;
@@ -17,8 +17,9 @@ export class CourierDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private courierService: CourierService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -36,13 +37,25 @@ export class CourierDetailComponent implements OnInit {
       next: (data) => {
         this.courier = data;
         this.loading = false;
-        this.cdr.detectChanges(); // Force UI update for SSR stability
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error fetching details:', err);
+        console.error('Error:', err);
         this.loading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
+  }
+
+  goToMap() {
+    if (this.courier) {
+      this.router.navigate(['/map'], {
+        queryParams: {
+          id: this.courier.id,
+          lat: this.courier.latitude,
+          lng: this.courier.longitude,
+        },
+      });
+    }
   }
 }
