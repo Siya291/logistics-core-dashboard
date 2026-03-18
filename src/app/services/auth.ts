@@ -16,6 +16,10 @@ export class AuthService {
     );
   }
 
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('jwt_token');
+  }
+
   logout() {
     localStorage.removeItem('jwt_token');
   }
