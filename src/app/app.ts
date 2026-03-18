@@ -1,18 +1,36 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd, RouterOutlet, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
+import { AuthService } from './services/auth';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink],
-  template: `
-    <nav style="padding: 1rem; background: #3f51b5; color: white;">
-      <a routerLink="/couriers" style="color: white; margin-right: 15px; text-decoration: none;">Couriers</a>
-      <a routerLink="/map" style="color: white; text-decoration: none;">Map</a>
-    </nav>
-    <main style="padding: 20px;">
-      <router-outlet></router-outlet>
-    </main>
-  `,
+  imports: [CommonModule, RouterOutlet, RouterLink],
+  templateUrl: './app.html',
+  styleUrls: ['./app.css']
 })
-export class App {}
+export class App implements OnInit {
+  showNavigation = false;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      // Hide navigation if on login page
+      const isLoginPage = event.urlAfterRedirects === '/login' || event.url === '/login';
+      this.showNavigation = !isLoginPage;
+    });
+  }
+
+  onLogout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}

@@ -1,1 +1,51 @@
-<p>login works!</p>
+<div class="login-wrapper">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Smart City Logistics</mat-card-title>
+      <mat-card-subtitle>Please sign in to your account</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form (submit)="onLogin()" #loginForm="ngForm" class="login-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Username</mat-label>
+          <input
+            matInput
+            [(ngModel)]="creds.username"
+            name="username"
+            required
+            placeholder="Enter your username">
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [(ngModel)]="creds.password"
+            name="password"
+            type="password"
+            required
+            placeholder="Enter your password">
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="login-button"
+          [disabled]="!loginForm.form.valid || loading">
+          <span *ngIf="!loading">LOGIN</span>
+          <span *ngIf="loading">AUTHENTICATING...</span>
+        </button>
+
+      </form>
+    </mat-card-content>
+
+    <mat-card-footer *ngIf="error" class="error-footer">
+      <p>{{ errorMessage }}</p>
+    </mat-card-footer>
+  </mat-card>
+</div>

@@ -1,0 +1,15 @@
+@if (showNavigation) {
+  <nav class="main-nav">
+    <div class="nav-links">
+      <a routerLink="/couriers" routerLinkActive="active">Couriers</a>
+      <a routerLink="/map" routerLinkActive="active">Live Map</a>
+    </div>
+    <div class="nav-actions">
+      <button class="logout-btn" (click)="onLogout()">Logout</button>
+    </div>
+  </nav>
+}
+
+<main class="content-area">
+  <router-outlet></router-outlet>
+</main>
